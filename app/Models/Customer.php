@@ -24,4 +24,40 @@ class Customer extends Model
     {
         return $this->hasMany(Cv::class);
     }
+
+    // ── Profile Sections ─────────────────────────────────────────
+
+    public function educations(): HasMany
+    {
+        return $this->hasMany(Education::class)->latest();
+    }
+
+    public function experiences(): HasMany
+    {
+        return $this->hasMany(Experience::class)->latest();
+    }
+
+    public function skills(): HasMany
+    {
+        return $this->hasMany(Skill::class)->latest();
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class)->latest();
+    }
+
+    public function languages(): HasMany
+    {
+        return $this->hasMany(Language::class)->latest();
+    }
+
+    public function certifications(): HasMany
+    {
+        return $this->hasMany(Certification::class)->latest();
+    }
+
+    // Future এ এখানে নতুন section add করো:
+    // public function awards(): HasMany { ... }
+    // public function interests(): HasMany { ... }
 }
