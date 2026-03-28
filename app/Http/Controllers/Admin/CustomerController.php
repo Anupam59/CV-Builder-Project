@@ -140,6 +140,8 @@ class CustomerController extends Controller
             abort(403, 'You do not have access to this customer.');
         }
 
+        $customer->load(['detail', 'users']);
+
         $cvs = $customer->cvs()
             ->where('user_id', auth()->id())
             ->latest()

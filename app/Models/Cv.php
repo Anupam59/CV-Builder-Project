@@ -11,13 +11,14 @@ class Cv extends Model
         'user_id',
         'customer_id',
         'title',
-        'data',
+        'language',
+        'snapshot',
     ];
 
     protected function casts(): array
     {
         return [
-            'data' => 'array', // JSON auto cast
+            'snapshot' => 'array',
         ];
     }
 

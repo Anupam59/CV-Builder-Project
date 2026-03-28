@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\CustomerDetailRequest;
 use App\Http\Requests\Admin\ProfileSectionRequest;
 use App\Models\Certification;
 use App\Models\Customer;
@@ -12,7 +13,6 @@ use App\Models\Language;
 use App\Models\Project;
 use App\Models\Skill;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class CustomerProfileController extends Controller
 {
@@ -25,9 +25,6 @@ class CustomerProfileController extends Controller
         }
     }
 
-    /**
-     * এই customer এই professional এর list এ আছে কিনা check করো
-     */
     private function authorizeCustomer(Customer $customer): void
     {
         $attached = auth()->user()
@@ -40,17 +37,15 @@ class CustomerProfileController extends Controller
         }
     }
 
-    // ── Profile Overview Page ─────────────────────────────────────
+    // ── Profile Overview ──────────────────────────────────────────
 
-    /**
-     * Customer এর সব profile data একসাথে দেখাও
-     */
     public function show(Customer $customer)
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
 
         $customer->load([
+            'detail',
             'educations',
             'experiences',
             'skills',
@@ -62,6 +57,34 @@ class CustomerProfileController extends Controller
         return view('page.admin.customer.profile.show', compact('customer'));
     }
 
+    // ── Customer Detail (Personal Info) ───────────────────────────
+
+    public function detailEdit(Customer $customer)
+    {
+        $this->authorizeAccess();
+        $this->authorizeCustomer($customer);
+
+        $detail = $customer->detail;
+
+        return view('page.admin.customer.profile.detail.form', compact('customer', 'detail'));
+    }
+
+    public function detailUpdate(CustomerDetailRequest $request, Customer $customer): RedirectResponse
+    {
+        $this->authorizeAccess();
+        $this->authorizeCustomer($customer);
+
+        // updateOrCreate — detail না থাকলে create, থাকলে update
+        $customer->detail()->updateOrCreate(
+            ['customer_id' => $customer->id],
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('admin.customers.profile.show', $customer->id)
+            ->with('success', 'Personal information updated successfully.');
+    }
+
     // ══════════════════════════════════════════════════════════════
     // EDUCATION
     // ══════════════════════════════════════════════════════════════
@@ -70,7 +93,6 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         return view('page.admin.customer.profile.education.form', compact('customer'));
     }
 
@@ -78,11 +100,8 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         $customer->educations()->create($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Education added successfully.');
     }
 
@@ -91,7 +110,6 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($education->customer_id !== $customer->id, 404);
-
         return view('page.admin.customer.profile.education.form', compact('customer', 'education'));
     }
 
@@ -100,11 +118,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($education->customer_id !== $customer->id, 404);
-
         $education->update($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Education updated successfully.');
     }
 
@@ -113,11 +128,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($education->customer_id !== $customer->id, 404);
-
         $education->delete();
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Education deleted.');
     }
 
@@ -129,7 +141,6 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         return view('page.admin.customer.profile.experience.form', compact('customer'));
     }
 
@@ -137,11 +148,8 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         $customer->experiences()->create($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Experience added successfully.');
     }
 
@@ -150,7 +158,6 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($experience->customer_id !== $customer->id, 404);
-
         return view('page.admin.customer.profile.experience.form', compact('customer', 'experience'));
     }
 
@@ -159,11 +166,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($experience->customer_id !== $customer->id, 404);
-
         $experience->update($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Experience updated successfully.');
     }
 
@@ -172,11 +176,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($experience->customer_id !== $customer->id, 404);
-
         $experience->delete();
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Experience deleted.');
     }
 
@@ -188,7 +189,6 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         return view('page.admin.customer.profile.skill.form', compact('customer'));
     }
 
@@ -196,11 +196,8 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         $customer->skills()->create($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Skill added successfully.');
     }
 
@@ -209,7 +206,6 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($skill->customer_id !== $customer->id, 404);
-
         return view('page.admin.customer.profile.skill.form', compact('customer', 'skill'));
     }
 
@@ -218,11 +214,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($skill->customer_id !== $customer->id, 404);
-
         $skill->update($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Skill updated successfully.');
     }
 
@@ -231,11 +224,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($skill->customer_id !== $customer->id, 404);
-
         $skill->delete();
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Skill deleted.');
     }
 
@@ -247,7 +237,6 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         return view('page.admin.customer.profile.project.form', compact('customer'));
     }
 
@@ -255,11 +244,8 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         $customer->projects()->create($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Project added successfully.');
     }
 
@@ -268,7 +254,6 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($project->customer_id !== $customer->id, 404);
-
         return view('page.admin.customer.profile.project.form', compact('customer', 'project'));
     }
 
@@ -277,11 +262,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($project->customer_id !== $customer->id, 404);
-
         $project->update($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Project updated successfully.');
     }
 
@@ -290,11 +272,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($project->customer_id !== $customer->id, 404);
-
         $project->delete();
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Project deleted.');
     }
 
@@ -306,7 +285,6 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         return view('page.admin.customer.profile.language.form', compact('customer'));
     }
 
@@ -314,11 +292,8 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         $customer->languages()->create($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Language added successfully.');
     }
 
@@ -327,7 +302,6 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($language->customer_id !== $customer->id, 404);
-
         return view('page.admin.customer.profile.language.form', compact('customer', 'language'));
     }
 
@@ -336,11 +310,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($language->customer_id !== $customer->id, 404);
-
         $language->update($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Language updated successfully.');
     }
 
@@ -349,11 +320,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($language->customer_id !== $customer->id, 404);
-
         $language->delete();
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Language deleted.');
     }
 
@@ -365,7 +333,6 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         return view('page.admin.customer.profile.certification.form', compact('customer'));
     }
 
@@ -373,11 +340,8 @@ class CustomerProfileController extends Controller
     {
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
-
         $customer->certifications()->create($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Certification added successfully.');
     }
 
@@ -386,7 +350,6 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($certification->customer_id !== $customer->id, 404);
-
         return view('page.admin.customer.profile.certification.form', compact('customer', 'certification'));
     }
 
@@ -395,11 +358,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($certification->customer_id !== $customer->id, 404);
-
         $certification->update($request->validated());
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Certification updated successfully.');
     }
 
@@ -408,11 +368,8 @@ class CustomerProfileController extends Controller
         $this->authorizeAccess();
         $this->authorizeCustomer($customer);
         abort_if($certification->customer_id !== $customer->id, 404);
-
         $certification->delete();
-
-        return redirect()
-            ->route('admin.customers.profile.show', $customer->id)
+        return redirect()->route('admin.customers.profile.show', $customer->id)
             ->with('success', 'Certification deleted.');
     }
 }

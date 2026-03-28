@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Customer extends Model
 {
@@ -15,9 +16,16 @@ class Customer extends Model
         'address',
     ];
 
+    // ── Relations ─────────────────────────────────────────────────
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    public function detail(): HasOne
+    {
+        return $this->hasOne(CustomerDetail::class);
     }
 
     public function cvs(): HasMany
@@ -25,7 +33,7 @@ class Customer extends Model
         return $this->hasMany(Cv::class);
     }
 
-    // ── Profile Sections ─────────────────────────────────────────
+    // ── Profile Sections ──────────────────────────────────────────
 
     public function educations(): HasMany
     {
@@ -56,8 +64,4 @@ class Customer extends Model
     {
         return $this->hasMany(Certification::class)->latest();
     }
-
-    // Future এ এখানে নতুন section add করো:
-    // public function awards(): HasMany { ... }
-    // public function interests(): HasMany { ... }
 }

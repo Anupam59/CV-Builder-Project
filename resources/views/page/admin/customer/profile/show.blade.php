@@ -4,14 +4,14 @@
 @section('page_subtitle', $customer->name)
 
 @push('toolbar_actions')
-    <a href="{{ route('admin.customers.show', $customer->id) }}" class="btn btn-sm btn-light btn-active-primary">
-        ← Back to Customer
+    <a href="{{ route('admin.cvs.create', ['customer_id' => $customer->id]) }}" class="btn btn-sm btn-success me-2">
+        <i class="fas fa-file-alt me-1"></i> Create CV
     </a>
+    <a href="{{ route('admin.customers.show', $customer->id) }}" class="btn btn-sm btn-light">← Back</a>
 @endpush
 
 @section('content')
 
-    {{-- Flash Messages --}}
     @if (session('success'))
         <div class="alert alert-success d-flex align-items-center p-4 mb-5">
             <i class="fas fa-check-circle text-success fs-4 me-3"></i>
@@ -19,28 +19,74 @@
         </div>
     @endif
 
-    {{-- Customer Info Bar --}}
+    {{-- ── Personal Info Card ── --}}
     <div class="card mb-6">
-        <div class="card-body py-4 d-flex align-items-center gap-5">
-            <div class="symbol symbol-55px">
-                <span class="symbol-label bg-light-info text-info fw-bolder fs-3">
-                    {{ strtoupper(substr($customer->name, 0, 1)) }}
-                </span>
+        <div class="card-header pt-6">
+            <div class="card-title">
+                <i class="fas fa-id-card text-primary me-2 fs-4"></i>
+                <h3 class="mb-0">Personal Information</h3>
             </div>
-            <div>
-                <div class="text-dark fw-bolder fs-4">{{ $customer->name }}</div>
-                <div class="text-muted fs-7">{{ $customer->phone }}
-                    @if ($customer->email)
-                        · {{ $customer->email }}
+            <div class="card-toolbar">
+                <a href="{{ route('admin.customers.profile.detail.edit', $customer->id) }}"
+                    class="btn btn-sm btn-light-primary">
+                    <i class="fas fa-pen me-1"></i>
+                    {{ $customer->detail ? 'Edit' : 'Add' }} Personal Info
+                </a>
+            </div>
+        </div>
+        <div class="card-body pt-4">
+            @if ($customer->detail)
+                <div class="row g-4">
+                    @php
+                        $d = $customer->detail;
+                        $fields = [
+                            'Father Name' => $d->father_name,
+                            'Mother Name' => $d->mother_name,
+                            'Date of Birth' => $d->date_of_birth?->format('d M Y'),
+                            'Gender' => $d->gender ? ucfirst($d->gender) : null,
+                            'Marital Status' => $d->marital_status ? ucfirst($d->marital_status) : null,
+                            'Nationality' => $d->nationality,
+                            'Religion' => $d->religion,
+                            'NID Number' => $d->nid_number,
+                            'Profession' => $d->profession,
+                            'Website' => $d->website,
+                            'LinkedIn' => $d->linkedin,
+                            'GitHub' => $d->github,
+                        ];
+                    @endphp
+                    @foreach ($fields as $label => $value)
+                        @if ($value)
+                            <div class="col-sm-6 col-lg-4">
+                                <div class="bg-light rounded p-3">
+                                    <div class="text-muted fs-8 mb-1">{{ $label }}</div>
+                                    <div class="text-dark fw-bold fs-7">{{ $value }}</div>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                    @if ($d->profile_summary)
+                        <div class="col-12">
+                            <div class="bg-light rounded p-3">
+                                <div class="text-muted fs-8 mb-1">Profile Summary</div>
+                                <div class="text-dark fs-7">{{ $d->profile_summary }}</div>
+                            </div>
+                        </div>
                     @endif
                 </div>
-            </div>
+            @else
+                <div class="text-center text-muted py-8">
+                    <i class="fas fa-id-card fs-3x opacity-25 d-block mb-3"></i>
+                    No personal information added yet.
+                    <a href="{{ route('admin.customers.profile.detail.edit', $customer->id) }}"
+                        class="text-primary ms-1">Add now →</a>
+                </div>
+            @endif
         </div>
     </div>
 
     <div class="row g-6">
 
-        {{-- ── EDUCATION ── --}}
+        {{-- Education --}}
         <div class="col-12">
             @include('page.admin.customer.profile.partials.section', [
                 'title' => 'Education',
@@ -54,7 +100,7 @@
             ])
         </div>
 
-        {{-- ── EXPERIENCE ── --}}
+        {{-- Experience --}}
         <div class="col-12">
             @include('page.admin.customer.profile.partials.section', [
                 'title' => 'Experience',
@@ -68,7 +114,7 @@
             ])
         </div>
 
-        {{-- ── SKILLS ── --}}
+        {{-- Skills --}}
         <div class="col-xl-6">
             @include('page.admin.customer.profile.partials.section', [
                 'title' => 'Skills',
@@ -82,7 +128,7 @@
             ])
         </div>
 
-        {{-- ── LANGUAGES ── --}}
+        {{-- Languages --}}
         <div class="col-xl-6">
             @include('page.admin.customer.profile.partials.section', [
                 'title' => 'Languages',
@@ -96,7 +142,7 @@
             ])
         </div>
 
-        {{-- ── PROJECTS ── --}}
+        {{-- Projects --}}
         <div class="col-12">
             @include('page.admin.customer.profile.partials.section', [
                 'title' => 'Projects',
@@ -110,7 +156,7 @@
             ])
         </div>
 
-        {{-- ── CERTIFICATIONS ── --}}
+        {{-- Certifications --}}
         <div class="col-12">
             @include('page.admin.customer.profile.partials.section', [
                 'title' => 'Certifications',

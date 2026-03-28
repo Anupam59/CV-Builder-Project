@@ -13,7 +13,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->string('title', 200)->nullable();
-            $table->json('data'); // CV snapshot JSON
+            $table->string('language', 5)->default('en'); // 'en' or 'bn'
+            $table->json('snapshot');  // পুরো CV data এখানে save হবে
             $table->timestamps();
         });
     }
