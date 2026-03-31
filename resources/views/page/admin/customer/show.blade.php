@@ -7,7 +7,7 @@
     <a href="{{ route('admin.customers.profile.show', $customer->id) }}" class="btn btn-sm btn-primary me-2">
         <i class="fas fa-user-edit me-1"></i> Manage Profile
     </a>
-    <a href="{{ route('admin.cvs.create', ['customer_id' => $customer->id]) }}" class="btn btn-sm btn-success me-2">
+    <a href="{{ route('admin.cvs.step1', ['customer_id' => $customer->id]) }}" class="btn btn-sm btn-success me-2">
         <i class="fas fa-file-alt me-1"></i> Create CV
     </a>
     <a href="{{ route('admin.customers.index') }}" class="btn btn-sm btn-light">← Back</a>
@@ -102,7 +102,7 @@
                         <h3>CVs</h3>
                     </div>
                     <div class="card-toolbar">
-                        <a href="{{ route('admin.cvs.create', ['customer_id' => $customer->id]) }}"
+                        <a href="{{ route('admin.cvs.step1', ['customer_id' => $customer->id]) }}"
                             class="btn btn-sm btn-primary">+ New CV</a>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                     @empty
                         <div class="text-center text-muted py-10">
                             No CVs yet.
-                            <a href="{{ route('admin.cvs.create', ['customer_id' => $customer->id]) }}"
+                            <a href="{{ route('admin.cvs.step1', ['customer_id' => $customer->id]) }}"
                                 class="text-primary ms-1">Create first CV →</a>
                         </div>
                     @endforelse

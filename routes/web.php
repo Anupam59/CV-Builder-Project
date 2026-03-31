@@ -88,9 +88,33 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // ── CV ────────────────────────────────────────────────────────
     Route::get('cvs',          [CvController::class, 'index'])->name('cvs.index');
     Route::get('cvs/create',   [CvController::class, 'create'])->name('cvs.create');
-    Route::post('cvs',          [CvController::class, 'store'])->name('cvs.store');
-    Route::get('cvs/{cv}',     [CvController::class, 'show'])->name('cvs.show');
     Route::delete('cvs/{cv}',   [CvController::class, 'destroy'])->name('cvs.destroy');
+
+
+
+        // ── CV Builder ────────────────────────────────────────────────
+    Route::get('cvs',[CvController::class, 'index'])->name('cvs.index');
+
+    // Step-by-step create
+    Route::get('cvs/create',[CvController::class, 'step1'])->name('cvs.step1');
+    Route::get('cvs/create/template',[CvController::class, 'step2'])->name('cvs.step2');
+    Route::get('cvs/create/review',[CvController::class, 'step3'])->name('cvs.step3');
+    Route::post('cvs',[CvController::class, 'store'])->name('cvs.store');
+
+    // CV Actions
+    Route::get('cvs/{cv}',[CvController::class, 'show'])->name('cvs.show');
+    Route::get('cvs/{cv}/edit',[CvController::class, 'edit'])->name('cvs.edit');
+    Route::put('cvs/{cv}',[CvController::class, 'update'])->name('cvs.update');
+    Route::delete('cvs/{cv}',[CvController::class, 'destroy'])->name('cvs.destroy');
+
+    // Version History
+    Route::get('cvs/{cv}/history',[CvController::class, 'history'])->name('cvs.history');
+    Route::put('cvs/{cv}/restore/{cvSnapshot}',[CvController::class, 'restore'])->name('cvs.restore');
+
+    // Live Preview (AJAX — step2 এ use হয়)
+    Route::get('cvs/preview',[CvController::class, 'preview'])->name('cvs.preview');
+
+
 });
 
 

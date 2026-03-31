@@ -14,6 +14,8 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
             $table->string('title', 200)->nullable();
             $table->string('language', 5)->default('en'); // 'en' or 'bn'
+            $table->string('template_name', 50)->default('template_1');
+            $table->boolean('is_locked')->default(false);
             $table->json('snapshot');  // পুরো CV data এখানে save হবে
             $table->timestamps();
         });
